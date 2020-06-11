@@ -179,6 +179,11 @@ void block_cutter::clean_up()
 	}
 	m_tif = 0;
 	m_bitsperpixel = 0;	
+
+	if (m_jp2) {
+		delete m_jp2;
+		m_jp2 = 0;
+	}
 }
 
 // Image functions
@@ -318,6 +323,32 @@ int block_cutter::open_tiff(const char *in_name)
 	return 0;
 }
 
+int block_cutter::open_jp2(const char* in_name) {
+	QString str(in_name);
+	
+	m_jp2 = new QImage(str);
+	if (m_jp2->isNull())
+		return 1;
+	m_orig.height = m_jp2->height();
+	m_orig.width = m_jp2->width();
+	m_black_is_zero = true;
+	m_scanlinesize = m_jp2->bytesPerLine();
+	m_bitsperpixel = m_jp2->depth();
+	m_is_color = (m_bitsperpixel == 24 || m_bitsperpixel == 32);
+	return 0;
+}
+
+void block_cutter::scan_line(unsigned char* buf, int line) {
+	if (m_tif) {
+		TIFFReadScanline(m_tif, buf, line, 0);
+	}
+	else if (m_jp2) {
+		unsigned char* line_start = m_jp2->scanLine(line);
+		for (int i = 0; i < m_scanlinesize; ++i)
+			buf[i] = line_start[i];
+	}
+}
+
 void block_cutter::add(const alto_rectangle &ar, const std::string &fname)
 {
 	block_info bi;
@@ -344,8 +375,12 @@ void block_cutter::cut_all(const std::string &inputfile, float factor, std::map<
 		fprintf(stderr, "BC: Invalid scaling factor\n");
 	}
 	// printf("BC: Open %s\n", inputfile.c_str());
-	if (open_tiff(inputfile.c_str()) != 0) {
+	std::string file_ext = inputfile.substr(inputfile.length() - 3, 3);
+	if (file_ext == "tif" && open_tiff(inputfile.c_str()) != 0) {
 		fprintf(stderr, "unable to open file\n");
+		return;
+	}
+	else if (file_ext == "jp2" && open_jp2(inputfile.c_str())) {
 		return;
 	}
 	extend_blocks();
@@ -377,15 +412,15 @@ void block_cutter::cut_all(const std::string &inputfile, float factor, std::map<
 	std::list<cut_t::iterator>::iterator lit;
 	while (row < m_orig.height && (next != to_cut.end() || !active_blocks.empty())) {
 		// printf("%d\n", row);
-		TIFFReadScanline(m_tif, m_buf[0], row, 0);
+		scan_line(m_buf[0], row);
 		for (lit = active_blocks.begin(); lit != active_blocks.end(); ++lit) {
 			rescale_buf(m_buf[0] + (*lit)->first.x * m_bitsperpixel / 8, (*lit)->second.writer.jpgbuf, (*lit)->first.width, ifac);
 			(*lit)->second.writer.write_scanline();
 		}
-		if (!is_uncompressed_tiff) {
+		if (m_tif && !is_uncompressed_tiff) {
 			// Read ifac - 1 rows and throw data away
 			for (int i = 1; i < ifac; ++i) {
-				TIFFReadScanline(m_tif, m_buf[0], row + i, 0);
+				scan_line(m_buf[0], row + i);
 			}
 		}
 		row += ifac;

@@ -8,6 +8,10 @@
 #include <assert.h>
 #include "altorect.h"
 #include "tiffio.h"
+
+#include <QImage>
+#include <QString>
+
 extern "C" {
 #include "jpeglib.h"
 }
@@ -56,6 +60,7 @@ class block_cutter
 	bool			m_is_color;
 	bool			m_black_is_zero;
 	TIFF 			*m_tif;
+	QImage			*m_jp2;
 	bool			is_uncompressed_tiff;
 	alto_rectangle	m_orig;
 	unsigned char	*m_buf[LANCZOS_RADIUS];
@@ -65,7 +70,9 @@ class block_cutter
 	int				m_quality;
 
 	void debug_block(cut_t::iterator it);
+	void scan_line(unsigned char* buf, int line);
 	int open_tiff(const char *in_name);
+	int open_jp2(const char* in_name);
 	void rescale_buf(tdata_t buf, tdata_t outbuf, uint32 w, int factor);
 	void extend_blocks();
 	void clean_up();
