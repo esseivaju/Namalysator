@@ -12,7 +12,8 @@ w_errors::w_errors(QWidget *parent) :
 {
     m_ui->setupUi(this);  
    
-    connect(m_ui->btnExport, SIGNAL(clicked()),this, SLOT(exportExcel()));	
+    connect(m_ui->btnExport, SIGNAL(clicked()),this, SLOT(exportExcel()));
+	connect(m_ui->btnExportCSV, SIGNAL(clicked()), this, SLOT(exportCSV()));
 }
 
 w_errors::~w_errors()
@@ -70,8 +71,19 @@ void w_errors::getTaberrors()
 	dateerrortab *d = new dateerrortab(6);		
 	if( d->getSizeVError() !=0){
 		m_ui->tabWidget->addTab(d,"DATES");
-	} 
+	}
 }
+
+void w_errors::exportCSV() {
+	QString dirName = QFileDialog::getExistingDirectory(this, tr("Select Directory"));
+	
+	if (!dirName.isEmpty()) {
+		exportdata* data = new exportdata();
+		data->exportErrorsCSV(BatchDetail::getBatchDetail(), dirName.toStdString());
+		delete data;
+	}
+}
+
 void w_errors::exportExcel()
 {
 	QString fileName = QFileDialog::getSaveFileName(this,tr("Open File"),"",tr("file (*.ods)"));
@@ -80,5 +92,6 @@ void w_errors::exportExcel()
      {			
 		 exportdata *data = new exportdata();
 		 data->exportErrors(BatchDetail::getBatchDetail(),fileName.toStdString());
+		 delete data;
 	}  	
 }

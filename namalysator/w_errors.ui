@@ -45,7 +45,7 @@
             <x>0</x>
             <y>0</y>
             <width>991</width>
-            <height>724</height>
+            <height>695</height>
            </rect>
           </property>
          </widget>
@@ -59,6 +59,13 @@
     <widget class="QPushButton" name="btnExport">
      <property name="text">
       <string>Export Data</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnExportCSV">
+     <property name="text">
+      <string>Export CSV</string>
      </property>
     </widget>
    </item>

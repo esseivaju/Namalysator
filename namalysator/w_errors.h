@@ -28,6 +28,7 @@ private:
     void getTaberrors();
 private slots:
 	void exportExcel();
+    void exportCSV();
 };
 
 #endif // W_ERRORS_H
