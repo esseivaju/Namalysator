@@ -30,6 +30,7 @@ public:
     QScrollArea *scrollAreaErrorTable;
     QWidget *scrollAreaWidgetContents;
     QPushButton *btnExport;
+    QPushButton *btnExportCSV;
 
     void setupUi(QWidget *w_errors)
     {
@@ -55,7 +56,7 @@ public:
         scrollAreaErrorTable->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 991, 724));
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 991, 695));
         scrollAreaErrorTable->setWidget(scrollAreaWidgetContents);
 
         gridLayout->addWidget(scrollAreaErrorTable, 0, 0, 1, 1);
@@ -68,6 +69,11 @@ public:
         btnExport->setObjectName(QString::fromUtf8("btnExport"));
 
         verticalLayout->addWidget(btnExport);
+
+        btnExportCSV = new QPushButton(w_errors);
+        btnExportCSV->setObjectName(QString::fromUtf8("btnExportCSV"));
+
+        verticalLayout->addWidget(btnExportCSV);
 
 
         retranslateUi(w_errors);
@@ -83,6 +89,7 @@ public:
         w_errors->setWindowTitle(QCoreApplication::translate("w_errors", "Form", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("w_errors", "Summary of Errors", nullptr));
         btnExport->setText(QCoreApplication::translate("w_errors", "Export Data", nullptr));
+        btnExportCSV->setText(QCoreApplication::translate("w_errors", "Export CSV", nullptr));
     } // retranslateUi
 
 };
